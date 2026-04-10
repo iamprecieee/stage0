@@ -3,8 +3,8 @@ FROM rust:1.91-slim AS builder
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
     pkg-config \
-    libssl-dev \
     ca-certificates \
+    musl-tools \
     && rm -rf /var/lib/apt/lists/*
 
 RUN rustup target add x86_64-unknown-linux-musl
