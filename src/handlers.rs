@@ -16,7 +16,9 @@ pub async fn process_gender(
     let params = match params {
         Ok(Query(param)) => param,
         Err(e) => {
-            return AppError::BadRequest(e.to_string()).into_response();
+            tracing::error!("Invalid query parameters: {}", e);
+            return AppError::BadRequest("Missing or empty name parameter".to_string())
+                .into_response();
         }
     };
 
