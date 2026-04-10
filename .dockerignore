@@ -3,4 +3,3 @@ target/
 .gitignore
 *.md
 Cargo.lock.bak
-Cargo.lock
