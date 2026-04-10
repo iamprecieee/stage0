@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y \
 
 RUN rustup target add x86_64-unknown-linux-musl
 
+ENV CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER=x86_64-linux-musl-gcc
+
 WORKDIR /app
 
 # Copy manifests
