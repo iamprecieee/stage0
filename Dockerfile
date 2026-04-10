@@ -1,4 +1,4 @@
-FROM rust:1.81-slim AS builder
+FROM rust:1.91-slim AS builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
