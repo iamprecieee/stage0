@@ -4,12 +4,8 @@ FROM rust:1.91-slim AS builder
 RUN apt-get update && apt-get install -y \
     pkg-config \
     ca-certificates \
-    musl-tools \
+    libssl-dev \
     && rm -rf /var/lib/apt/lists/*
-
-RUN rustup target add x86_64-unknown-linux-musl
-
-ENV CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER=x86_64-linux-musl-gcc
 
 WORKDIR /app
 
@@ -22,29 +18,31 @@ RUN mkdir src && \
     echo "pub fn dummy() {}" > src/lib.rs
 
 # Build dependencies only
-RUN cargo build --release --target x86_64-unknown-linux-musl || true
-RUN rm -rf target/x86_64-unknown-linux-musl/release/.fingerprint/stage0-* \
-    target/x86_64-unknown-linux-musl/release/deps/stage0* \
-    target/x86_64-unknown-linux-musl/release/deps/libstage0*
+RUN cargo build --release || true
+RUN rm -rf target/release/.fingerprint/stage0-* \
+    target/release/deps/stage0* \
+    target/release/deps/libstage0*
 
 # Copy source code
 COPY src ./src
 
 # Build the actual application
-RUN cargo build --release --target x86_64-unknown-linux-musl
+RUN cargo build --release
 
 # Runtime image
-FROM alpine:3.20
+FROM debian:bookworm-slim
 
-RUN apk add --no-cache ca-certificates
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    libssl3 \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 # Copy binary from builder
-COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/stage0 /app/stage0
+COPY --from=builder /app/target/release/stage0 /app/stage0
 
 ENV RUST_LOG=info
-ENV HOST=0.0.0.0
 
 EXPOSE 3000
 
